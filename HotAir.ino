@@ -16,7 +16,8 @@
 *===============================================================================================================*
     CONFIGURATION
 *===============================================================================================================*
-
+// board:
+// https://mcudude.github.io/MiniCore/package_MCUdude_MiniCore_index.json
 
 *===============================================================================================================*
     LICENSE
@@ -42,12 +43,12 @@
 
 *==============================================================================================================*/
 
+
 #include <Wire.h> //I2C - 2-Wire
-#include <OneWire.h> //https://github.com/PaulStoffregen/OneWire
-#include <MCP342X.h> //https://github.com/uchip/MCP342X
-#include <SevSeg.h> //https://github.com/DeanIsMe/SevSeg
-#include <DallasTemperature.h> //https://github.com/milesburton/Arduino-Temperature-Control-Library
-//https://github.com/milesburton/Arduino-Temperature-Control-Library/blob/master/library.json
+#include <OneWire.h>			//https://github.com/PaulStoffregen/OneWire
+#include <MCP342X.h>			//https://github.com/uchip/MCP342X
+#include <SevSeg.h>				//https://github.com/DeanIsMe/SevSeg
+#include <DallasTemperature.h>	//https://github.com/milesburton/Arduino-Temperature-Control-Library
 
 // Programs settings patern
 struct Config{
