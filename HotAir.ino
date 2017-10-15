@@ -16,7 +16,8 @@
 *===============================================================================================================*
     CONFIGURATION
 *===============================================================================================================*
-
+// board:
+// https://mcudude.github.io/MiniCore/package_MCUdude_MiniCore_index.json
 
 *===============================================================================================================*
     LICENSE
@@ -42,19 +43,18 @@
 
 *==============================================================================================================*/
 
-//#include <avr/io.h>
-//#include <avr/interrupt.h>
+
 #include <Wire.h> //I2C - 2-Wire
-#include <OneWire.h>
-#include <MCP342X.h>
-#include <SevSeg.h>
-#include <DallasTemperature.h>
+#include <OneWire.h>			//https://github.com/PaulStoffregen/OneWire
+#include <MCP342X.h>			//https://github.com/uchip/MCP342X
+#include <SevSeg.h>				//https://github.com/DeanIsMe/SevSeg
+#include <DallasTemperature.h>	//https://github.com/milesburton/Arduino-Temperature-Control-Library
 
-
+// Programs settings patern
 struct Config{
 	int16_t Temperatura;
 	void test(){}
-} sdfg;
+};
 
 struct display_t{
 	float value;
@@ -64,9 +64,9 @@ struct display_t{
 	int counter;
 } display;
 
-Config myConfig= {100.0F}; //inicjuje domyslnymi wartosciami
+Config myConfig= {100}; //Initialise default parameters
 
-//przyciski
+//Menu buttons
 #define BTN1_PIN 2
 #define BTN2_PIN 3
 #define BTN3_PIN 17
@@ -143,7 +143,6 @@ TIMSK2=(0<<OCIE2B) | (0<<OCIE2A) | (1<<TOIE2);
 	sevseg.begin(COMMON_ANODE, numDigits, digitPins, segmentPins);
 	sevseg.setBrightness(100);
 	//RESISTORS_ON_SEGMENTS =1;
-	//return;
 
 	// mcp +++++++++++++++++++++++++++++++++++++++++
 	Wire.begin();  // join I2C bus
