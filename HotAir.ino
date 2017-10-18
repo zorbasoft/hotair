@@ -88,75 +88,77 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 DeviceAddress address18b30; // We'll use this variable to store a found device address
 float temp18B20;
-
+float ledVal;
+unsigned long mills1;
 
 
 void setup()
 {
 	cli();
-// Timer Period: 0,52429 s
-// Timer1 Overflow Interrupt: On
-// Input Capture Interrupt: Off
-// Compare A Match Interrupt: Off
-// Compare B Match Interrupt: Off
-TCCR1A=(0<<COM1A1) | (0<<COM1A0) | (0<<COM1B1) | (0<<COM1B0) | (0<<WGM11) | (0<<WGM10);
-TCCR1B=(0<<ICNC1) | (0<<ICES1) | (0<<WGM13) | (0<<WGM12) | (0<<CS12) | (1<<CS11) | (1<<CS10);
-TCNT1H=0x00;
-TCNT1L=0x00;
-ICR1H=0x00;
-ICR1L=0x00;
-OCR1AH=0x00;
-OCR1AL=0x00;
-OCR1BH=0x00;
-OCR1BL=0x00;
-// Timer/Counter 1 Interrupt(s) initialization
-TIMSK1=(0<<ICIE1) | (0<<OCIE1B) | (0<<OCIE1A) | (1<<TOIE1);
+	// Timer Period: 0,52429 s
+	// Timer1 Overflow Interrupt: On
+	// Input Capture Interrupt: Off
+	// Compare A Match Interrupt: Off
+	// Compare B Match Interrupt: Off
+	TCCR1A = (0 << COM1A1) | (0 << COM1A0) | (0 << COM1B1) | (0 << COM1B0) | (0 << WGM11) | (0 << WGM10);
+	TCCR1B = (0 << ICNC1) | (0 << ICES1) | (0 << WGM13) | (0 << WGM12) | (0 << CS12) | (1 << CS11) | (1 << CS10);
+	TCNT1H = 0x00;
+	TCNT1L = 0x00;
+	ICR1H = 0x00;
+	ICR1L = 0x00;
+	OCR1AH = 0x00;
+	OCR1AL = 0x00;
+	OCR1BH = 0x00;
+	OCR1BL = 0x00;
+	// Timer/Counter 1 Interrupt(s) initialization
+	TIMSK1 = (0 << ICIE1) | (0 << OCIE1B) | (0 << OCIE1A) | (1 << TOIE1);
 
-// Timer Period: 8,192 ms
-ASSR=(0<<EXCLK) | (0<<AS2);
-TCCR2A=(0<<COM2A1) | (0<<COM2A0) | (0<<COM2B1) | (0<<COM2B0) | (0<<WGM21) | (0<<WGM20);
-TCCR2B=(0<<WGM22) | (1<<CS22) | (1<<CS21) | (0<<CS20);
-//TCCR2B=(0<<WGM22) | (0<<CS22) | (0<<CS21) | (0<<CS20);
+	// Timer Period: 8,192 ms
+	ASSR = (0 << EXCLK) | (0 << AS2);
+	TCCR2A = (0 << COM2A1) | (0 << COM2A0) | (0 << COM2B1) | (0 << COM2B0) | (0 << WGM21) | (0 << WGM20);
+	TCCR2B = (0 << WGM22) | (1 << CS22) | (1 << CS21) | (0 << CS20);
+	//TCCR2B=(0<<WGM22) | (0<<CS22) | (0<<CS21) | (0<<CS20);
 
-TCNT2=0x00;
-OCR2A=0x00;
-OCR2B=0x00;
-// Timer/Counter 2 Interrupt(s) initialization
-TIMSK2=(0<<OCIE2B) | (0<<OCIE2A) | (1<<TOIE2);
+	TCNT2 = 0x00;
+	OCR2A = 0x00;
+	OCR2B = 0x00;
+	// Timer/Counter 2 Interrupt(s) initialization
+	TIMSK2 = (0 << OCIE2B) | (0 << OCIE2A) | (1 << TOIE2);
 	sei();
 
 	//PRZYCISKI ++++++++++++++++++++++++++++++++++
-	pinMode(BTN1_PIN,INPUT_PULLUP );
-	pinMode(BTN2_PIN,INPUT_PULLUP );
-	pinMode(BTN3_PIN,INPUT_PULLUP );
+	pinMode(BTN1_PIN, INPUT_PULLUP);
+	pinMode(BTN2_PIN, INPUT_PULLUP);
+	pinMode(BTN3_PIN, INPUT_PULLUP);
 
 	//STEROWANIE WYJSCIAMI +++++++++++++++++++++++
-	pinMode(PWR_PIN,OUTPUT );
-	digitalWrite(PWR_PIN ,LOW); //wylaczony
-	pinMode(MOC_PIN,OUTPUT);
-	digitalWrite(MOC_PIN,HIGH); //wylaczony
+	pinMode(PWR_PIN, OUTPUT);
+	digitalWrite(PWR_PIN, LOW); //wylaczony
+	pinMode(MOC_PIN, OUTPUT);
+	digitalWrite(MOC_PIN, HIGH); //wylaczony
 
 	// dig led ++++++++++++++++++++++++++++++++++++
 	byte numDigits = 3;
-	byte digitPins[] = {13,10,9};
-	byte segmentPins[] = {12,8,6,20,21,11,7,5};//A-G+DP
-	sevseg.begin(COMMON_ANODE, numDigits, digitPins, segmentPins);
-	sevseg.setBrightness(100);
+	byte digitPins[] = { 13,10,9 };
+	byte segmentPins[] = { 12,8,6,20,21,11,7,5 };//A-G+DP
+	sevseg.begin(COMMON_ANODE, numDigits, digitPins, segmentPins, true, false, false);
+	sevseg.setBrightness(90);
 	//RESISTORS_ON_SEGMENTS =1;
 
 	// mcp +++++++++++++++++++++++++++++++++++++++++
 	Wire.begin();  // join I2C bus
 	TWBR = 12;  // 400 kHz (maximum)
-	myADC.configure( MCP342X_MODE_CONTINUOUS | MCP342X_CHANNEL_1 | MCP342X_SIZE_18BIT | MCP342X_GAIN_8X );
+	myADC.configure(MCP342X_MODE_CONTINUOUS | MCP342X_CHANNEL_1 | MCP342X_SIZE_18BIT | MCP342X_GAIN_8X);
 	myADC.startConversion();
 
 	//DS18B20 start-up +++++++++++++++++++++++++++++
 	sensors.begin();
-	sensors.getAddress(address18b30, 0);
-	sensors.setResolution(address18b30, TEMPERATURE_PRECISION);
+	//sensors.getAddress(address18b30, 0);
+	//sensors.setResolution(address18b30, TEMPERATURE_PRECISION);
 	sensors.setWaitForConversion(false);
+	sensors.requestTemperatures();
 	sensors.setCheckForConversion(true);
-	sensors.requestTemperaturesByIndex(0); // Send the command to get temperatures
+	//sensors.requestTemperaturesByIndex(0); // Send the command to get temperatures
 }
 
 void LoadConfig()
@@ -167,50 +169,75 @@ void LoadConfig()
 
 void loop()
 {
-	digitalWrite(PWR_PIN, !digitalRead(BTN1_PIN));
-	//DS18B20_Read();
-	//temp18B20=26.6F;
-	ReadMCP();
+	//ledVal = millis() - mills1;
+	//mills1 = millis();
+	//digitalWrite(PWR_PIN, !digitalRead(BTN1_PIN));
+	//float f = GetTempLocal(); // 10-30ms
+	//if (f != 0.0F) ledVal = f;
+	//ledVal = f;
+	//ledVal = 8.18F;
+	ledVal =GetTempK(); // 10 ms
+	//delay(20);
+	DisplayUpdate();
 	//sevseg.refreshDisplay();
 }
 
+void DisplayUpdate()
+{
+	sevseg.setNumber(ledVal, 2);
+}
+
 // timer0 overflow
-ISR(TIMER1_OVF_vect)
+ISR(TIMER1_OVF_vect)//500ms
 {
 	//test();
 	//DS18B20_Read();
 	 //ReadMCP();
+	sevseg.refreshDisplay();
 }
 
-ISR(TIMER2_OVF_vect)
+ISR(TIMER2_OVF_vect)//8-9ms
 {
 	sevseg.refreshDisplay();
-	//DS18B20_Read();
 }
 
 // Odczyt temperatury lokalnej z DS18B20
-void DS18B20_Read()
+float GetTempLocal()
 {
+	temp18B20 = 0.0F;
+	//sensors.requestTemperatures(); // Send the command to get temperatures
+	
 	if (sensors.isConversionComplete())
 	{
-		temp18B20 = sensors.getTempC(address18b30);
-		sevseg.setNumber(temp18B20,1);
-		sensors.requestTemperaturesByIndex(0); // Send the command to get temperatures
+		//temp18B20 = sensors.getTempC(address18b30);
+		temp18B20 = sensors.getTempCByIndex(0);
+		//sensors.setWaitForConversion(false);
+		sensors.requestTemperatures();
+		//sensors.setCheckForConversion(true);
 	}
+	else
+	{
+//sensors.setWaitForConversion(false);
+//		sensors.requestTemperatures();
+//		sensors.setCheckForConversion(true);
+	}		
+	return temp18B20;
 }
 
-// Odczyt z DAC 18-bits
-void ReadMCP() {
+// Temperatura termopary K - Odczyt z ADC 18-bits
+float GetTempK() {
 	static int32_t  result;
 	myADC.startConversion();
-	uint8_t status =  myADC.checkforResult18 (&result);
-	if (status !=0xFF)
+	uint8_t status = myADC.checkforResult18(&result);
+	if (status != 0xFF)
 	{
 		//0.000001953125	// 18-bit, 8X Gain
-		float f= (result * 0.000001953125)*1000.0;
-		sevseg.setNumber(f,2);
+		float f = (result * 0.001953125)*1.0;
+		//sevseg.setNumber(f,2);
 		//myADC.startConversion();
+		return f;
 	}
+	return 0.0F;
 }
 
 // Odswiezenie wyswietlacza DigLed7x
