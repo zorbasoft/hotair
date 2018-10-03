@@ -15,11 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HotAir.ino" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="__vm\.HotAir.vsarduino.h">
+    <ClInclude Include="ValColl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="__vm\.hotair.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ValColl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="HotAir.ino" />
   </ItemGroup>
 </Project>
